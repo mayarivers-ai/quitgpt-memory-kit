@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 // CONFIG
 // ============================================================
 const CONFIG = {
-  DONATION_LINK: "https://buy.stripe.com/YOUR_DONATION_LINK",
+  DONATION_LINK: "https://donate.stripe.com/00w3cv5s098tctTcm604800",
   DONATION_AMOUNT: "$12",
 };
 
@@ -145,19 +145,15 @@ Extended memory from a previous AI assistant. [NUMBER] conversations about [desc
 If anything looks wrong, tell me.`,
 };
 
-const HELPER_SYS = `You are a helpful assistant in the QuitGPT Memory Kit. This free tool helps people migrate ChatGPT history into organized Claude Projects.
-
-Process: Export ChatGPT data (ZIP with JSON files) > concatenate if multiple files > clean metadata > create Claude Project > explore topics > classify > generate files per topic > create permanent Projects > verify.
-
-Limits: Claude max 20 files per chat. Project files max 30 MB each. Knowledge base uses RAG. Splitting by topic keeps files small (3-8 MB typically).
-
-Common issues:
-- 21+ JSON files: batch in groups of 20, merge outputs
-- "Knowledge exceeds maximum": single file too big, split by topic first
-- Claude misses conversations: uses RAG, give specific keywords/dates
-- File too big after cleaning: the topic split in later steps solves this
-
-Keep answers short and practical. If unclear what step they're on, ask.`;
+const FAQS = [
+  { q: "How many JSON files can I upload at once?", a: "Claude handles max 20 files per chat. If you have more, upload in batches of 20, merge the outputs, then continue with the merged file." },
+  { q: "I'm getting 'Knowledge exceeds maximum' error", a: "Your file is too big for the knowledge base (30 MB limit). Go back to the classify + generate steps — splitting by topic usually brings each file down to 3–8 MB." },
+  { q: "Claude isn't finding some of my conversations", a: "The knowledge base uses RAG (retrieval). Be specific: include keywords, dates, or exact phrases from the conversation you're looking for." },
+  { q: "My file is still too big after cleaning", a: "The topic split in steps 5A/5B is designed to fix this. A single 80 MB file typically becomes 4–6 files of 5–15 MB each." },
+  { q: "Where do I upload the file — chat or knowledge base?", a: "During processing (steps 3–5): upload into the chat. Final topic files go into the Project knowledge base so Claude can reference them permanently." },
+  { q: "Do I need to repeat the migration if I export again?", a: "Only if you want to add newer conversations. Run the same process on the new export and merge it with your existing memory files." },
+  { q: "Is my data sent anywhere?", a: "No. This tool is a static webpage — no server, no storage. You upload files directly to Claude in your own browser session." },
+];
 
 // ============================================================
 // STEP BUILDER
@@ -233,23 +229,17 @@ function Branch({q,onA,cur}){
     <div className="branch-opts">{q.opts.map(o=><button key={o.v} className={`branch-o ${cur===o.v?"branch-sel":""}`} onClick={()=>onA(q.k,o.v)}>{o.l}</button>)}</div></div>;
 }
 
-function Helper({open,onClose}){
-  const[msgs,setMsgs]=useState([]);const[inp,setInp]=useState("");const[loading,setLoading]=useState(false);const end=useRef(null);
-  useEffect(()=>{end.current?.scrollIntoView({behavior:"smooth"});},[msgs]);
-  const send=async()=>{if(!inp.trim()||loading)return;const u=inp.trim();setInp("");setMsgs(p=>[...p,{r:"user",t:u}]);setLoading(true);
-    try{const h=[...msgs,{r:"user",t:u}].map(m=>({role:m.r==="user"?"user":"assistant",content:m.t}));
-      const res=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,system:HELPER_SYS,messages:h})});
-      const d=await res.json();const reply=d.content?.map(c=>c.text||"").join("")||"Sorry, try again.";
-      setMsgs(p=>[...p,{r:"a",t:reply}]);}catch{setMsgs(p=>[...p,{r:"a",t:"Connection error. Try again."}]);}setLoading(false);};
+function FAQ({open,onClose}){
+  const[exp,setExp]=useState(null);
   if(!open)return null;
-  return <div className="hlp"><div className="hlp-hdr"><span className="hlp-title">Migration helper</span>
+  return <div className="hlp"><div className="hlp-hdr"><span className="hlp-title">FAQ</span>
     <button onClick={onClose} className="hlp-x">{"\u2715"}</button></div>
-    <div className="hlp-msgs">{msgs.length===0&&<div className="hlp-empty">Ask me anything about the migration. Examples:<br/><br/>"My file is 45 MB, what do I do?"<br/>"Claude gave me an error"<br/>"What goes in knowledge base vs chat?"</div>}
-      {msgs.map((m,i)=><div key={i} className={`hlp-msg ${m.r==="user"?"hlp-u":"hlp-a"}`}>{m.t}</div>)}
-      {loading&&<div className="hlp-loading">Thinking...</div>}<div ref={end}/></div>
-    <div className="hlp-inp"><input value={inp} onChange={e=>setInp(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Ask a question..."/>
-      <button onClick={send} disabled={loading}>Send</button></div></div>;
+    <div className="hlp-msgs" style={{padding:"12px 0"}}>
+      {FAQS.map((f,i)=><div key={i} className="faq-item" onClick={()=>setExp(exp===i?null:i)}>
+        <div className="faq-q"><span>{f.q}</span><span className="faq-arrow">{exp===i?"\u25b2":"\u25bc"}</span></div>
+        {exp===i&&<div className="faq-a">{f.a}</div>}
+      </div>)}
+    </div></div>;
 }
 
 function Counter({target,suffix="",dur=2000}){
@@ -395,7 +385,7 @@ function Wizard({onHome}){
     </div>
 
     <button className="wz-fab" onClick={()=>setHlp(!hlp)} style={{bottom:60}}>{hlp?"\u2715":"?"}</button>
-    <Helper open={hlp} onClose={()=>setHlp(false)}/>
+    <FAQ open={hlp} onClose={()=>setHlp(false)}/>
   </div>;
 }
 
@@ -575,20 +565,16 @@ const STYLES=`
 .wz-fab{position:fixed;bottom:20px;right:20px;width:50px;height:50px;background:var(--ac);color:var(--bg);border:none;border-radius:50%;font-size:20px;cursor:pointer;z-index:100;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(255,107,53,0.3);transition:all .2s;font-weight:700;}
 .wz-fab:hover{transform:scale(1.08);}
 
-/* HELPER */
-.hlp{position:fixed;bottom:80px;right:20px;width:350px;max-width:calc(100vw - 40px);height:460px;max-height:calc(100vh - 120px);background:var(--bg2);border:1px solid rgba(255,255,255,0.08);border-radius:16px;display:flex;flex-direction:column;z-index:200;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+/* FAQ */
+.hlp{position:fixed;bottom:80px;right:20px;width:350px;max-width:calc(100vw - 40px);max-height:calc(100vh - 120px);background:var(--bg2);border:1px solid rgba(255,255,255,0.08);border-radius:16px;display:flex;flex-direction:column;z-index:200;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
 .hlp-hdr{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;justify-content:space-between;align-items:center;}
 .hlp-title{font-family:var(--mn);font-size:12px;color:var(--ac);letter-spacing:1px;text-transform:uppercase;}
 .hlp-x{background:none;border:none;color:var(--tx3);font-size:16px;cursor:pointer;padding:4px;}
-.hlp-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
-.hlp-empty{font-size:13px;color:var(--tx3);line-height:1.6;padding:8px;}
-.hlp-msg{max-width:85%;padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;}
-.hlp-u{align-self:flex-end;background:var(--acg);color:var(--ac);border-bottom-right-radius:4px;}
-.hlp-a{align-self:flex-start;background:var(--bg3);color:var(--tx2);border-bottom-left-radius:4px;}
-.hlp-loading{font-size:12px;color:var(--tx3);font-style:italic;}
-.hlp-inp{padding:10px;border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:8px;}
-.hlp-inp input{flex:1;padding:10px 14px;background:var(--bg);border:1px solid rgba(255,255,255,0.08);border-radius:8px;color:var(--tx);font-size:13px;font-family:var(--sn);outline:none;}
-.hlp-inp button{padding:10px 16px;background:var(--ac);color:var(--bg);border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sn);}
+.hlp-msgs{flex:1;overflow-y:auto;}
+.faq-item{border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;}
+.faq-q{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;gap:12px;font-size:13px;color:var(--tx);line-height:1.4;}
+.faq-arrow{font-size:9px;color:var(--tx3);flex-shrink:0;}
+.faq-a{padding:0 16px 14px;font-size:13px;color:var(--tx2);line-height:1.6;}
 
 @media(max-width:640px){.stats{gap:20px;}.stat-n{font-size:30px;}.sec{padding:64px 20px;}.hero{padding:100px 20px 60px;}}
 `;
