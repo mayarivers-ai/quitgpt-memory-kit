@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
 
 // ============================================================
 // CONFIG
@@ -397,6 +398,7 @@ export default function App(){
   return <div className="app"><style>{STYLES}</style>
     {page==="landing"?<Landing onStart={()=>{setPage("wizard");window.scrollTo(0,0);}}/>:
      <Wizard onHome={()=>{setPage("landing");window.scrollTo(0,0);}}/>}
+    <Analytics />
   </div>;
 }
 
