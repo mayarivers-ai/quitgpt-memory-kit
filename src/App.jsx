@@ -9,7 +9,7 @@ const CONFIG = {
 };
 
 // ============================================================
-// PROMPTS
+// PROMPTS (always English — pasted into Claude)
 // ============================================================
 const P = {
   concat: `I've uploaded JSON files exported from ChatGPT. These contain my full conversation history split across multiple files.
@@ -145,71 +145,286 @@ Extended memory from a previous AI assistant. [NUMBER] conversations about [desc
 If anything looks wrong, tell me.`,
 };
 
-const FAQS = [
-  { q: "How many JSON files can I upload at once?", a: "Claude handles max 20 files per chat. If you have more, upload in batches of 20, merge the outputs, then continue with the merged file." },
-  { q: "I'm getting 'Knowledge exceeds maximum' error", a: "Your file is too big for the knowledge base (30 MB limit). Go back to the classify + generate steps — splitting by topic usually brings each file down to 3–8 MB." },
-  { q: "Claude isn't finding some of my conversations", a: "The knowledge base uses RAG (retrieval). Be specific: include keywords, dates, or exact phrases from the conversation you're looking for." },
-  { q: "My file is still too big after cleaning", a: "The topic split in steps 5A/5B is designed to fix this. A single 80 MB file typically becomes 4–6 files of 5–15 MB each." },
-  { q: "Where do I upload the file — chat or knowledge base?", a: "During processing (steps 3–5): upload into the chat. Final topic files go into the Project knowledge base so Claude can reference them permanently." },
-  { q: "Do I need to repeat the migration if I export again?", a: "Only if you want to add newer conversations. Run the same process on the new export and merge it with your existing memory files." },
-  { q: "Is my data sent anywhere?", a: "No. This tool is a static webpage — no server, no storage. You upload files directly to Claude in your own browser session." },
-];
+// ============================================================
+// TRANSLATIONS
+// ============================================================
+const TRANS = {
+  en: {
+    nav_cta: "Start migrating",
+    badge: "#QuitGPT is trending",
+    hero_h1a: "Leave", hero_h1b: "Keep", hero_h1c: "every memory.",
+    hero_sub: "Move your entire ChatGPT history into organized Claude Projects. No code. No scripts. Just copy-paste prompts that do the work for you.",
+    hero_cta: "Start migrating — it's free",
+    sub_note: "Free tool · ~30 min · no code · no account",
+    ksp_a: "No terminal. No Python. No scripts.",
+    ksp_b: "copy-paste prompts",
+    ksp_c: "and Claude does the rest.",
+    s1: "ChatGPT uninstall spike", s2: "users switched to Claude", s3: "Claude on App Store",
+    p_label: "The problem",
+    p_title: "Claude's memory import gets you 20%.\nThis gets you the other 80%.",
+    p_text: "The built-in \"Import Memory\" copies your name and preferences. But your real knowledge — every project discussion, brainstorm, and solution — lives in your conversation history. That doesn't transfer.",
+    bad_lbl: "Built-in import",
+    bad_li: ["Surface preferences only","No conversation history","No project context","Claude starts from near-zero"],
+    good_lbl: "With this kit",
+    good_li: ["Full history, cleaned and organized","Topic-based Claude Projects","Deep context preserved","Switching feels like an upgrade"],
+    h_label: "How it works",
+    h_title: "A wizard guides you step by step.\nYou just copy, paste, and follow along.",
+    h_text: "The wizard adapts to your situation — whether you have 1 file or 25. It shows only the steps YOU need, with copy-paste prompts for when you get stuck.",
+    h_steps: [
+      ["Export from ChatGPT","Settings → Data → Export. Takes 2 min."],
+      ["Clean & organize","The wizard's prompts tell Claude to strip metadata and merge files."],
+      ["Classify by topic","Claude analyzes your history and suggests personalized categories."],
+      ["Generate & upload","Claude creates topic files. You upload them to permanent Projects."],
+      ["Done","Ask Claude about any past project. It finds the context."],
+    ],
+    f_title: "Ready to bring your brain with you?",
+    f_text: "The wizard is free. If it helps you, you can buy me a coffee at the end.",
+    f_btn: "Open the migration wizard",
+    f_note: "Free / No account needed / ~30 minutes",
+    footer: "Built by someone who actually did this migration. Not affiliated with Anthropic or OpenAI.",
+    step_lbl: "Step", copy: "Copy prompt", copied: "\u2713 Copied!", prompt_lbl: "Prompt for Claude",
+    before: "Before you continue", back: "Back", next: "Next step",
+    bar_text: "This tool is free and always will be.", bar_btn: "\u2615 Buy me a coffee",
+    mid_pre: "Enjoying the kit so far? This tool is free. If it's saving you time, you can",
+    mid_link: "buy me a coffee", mid_post: "anytime.",
+    fin_title: "You made it!", fin_btn: "Buy me a coffee",
+    fin_text: "Your ChatGPT history is now organized in Claude Projects. If this tool saved you time and headaches, consider supporting the project. It helps me keep building free tools.",
+    fin_note: "Totally optional. Glad it helped either way.",
+    faq_ttl: "FAQ",
+    fc_q: "How many JSON files did you get?",
+    fc_o1: "Just 1 file", fc_o2: "2 to 20 files", fc_o3: "More than 20",
+    fs_q: "How big is your file?",
+    fs_o1: "Under 30 MB", fs_o2: "30 MB or bigger",
+  },
+  es: {
+    nav_cta: "Empezar migración",
+    badge: "#QuitGPT está en tendencia",
+    hero_h1a: "Deja", hero_h1b: "Conserva", hero_h1c: "cada memoria.",
+    hero_sub: "Mueve todo tu historial de ChatGPT a Proyectos de Claude organizados por tema. Sin código. Sin scripts. Solo prompts de copy-paste que hacen el trabajo.",
+    hero_cta: "Empezar migración — es gratis",
+    sub_note: "Gratis · ~30 min · sin código · sin cuenta",
+    ksp_a: "Sin terminal. Sin Python. Sin scripts.",
+    ksp_b: "prompts de copy-paste",
+    ksp_c: "y Claude hace el resto.",
+    s1: "pico de desinstalaciones de ChatGPT", s2: "usuarios migraron a Claude", s3: "Claude en App Store",
+    p_label: "El problema",
+    p_title: "La importación nativa te da el 20%.\nEsto te da el otro 80%.",
+    p_text: "La función 'Importar Memoria' copia tu nombre y preferencias. Pero tu conocimiento real — cada proyecto, brainstorm y solución — vive en tu historial de conversaciones. Eso no se transfiere.",
+    bad_lbl: "Importación nativa",
+    bad_li: ["Solo preferencias superficiales","Sin historial de conversaciones","Sin contexto de proyectos","Claude empieza casi de cero"],
+    good_lbl: "Con este kit",
+    good_li: ["Historial completo, limpio y organizado","Proyectos de Claude por tema","Contexto profundo preservado","El cambio parece una mejora"],
+    h_label: "Cómo funciona",
+    h_title: "Un asistente te guía paso a paso.\nSolo copias, pegas y sigues las instrucciones.",
+    h_text: "El asistente se adapta a tu situación — tengas 1 archivo o 25. Solo muestra los pasos que TÚ necesitas, con prompts de copy-paste.",
+    h_steps: [
+      ["Exportar de ChatGPT","Configuración → Datos → Exportar. 2 minutos."],
+      ["Limpiar y organizar","Los prompts le dicen a Claude que elimine metadatos y fusione archivos."],
+      ["Clasificar por tema","Claude analiza tu historial y sugiere categorías personalizadas."],
+      ["Generar y subir","Claude crea archivos por tema. Los subes a Proyectos permanentes."],
+      ["Listo","Pregúntale a Claude sobre cualquier proyecto pasado. Lo encuentra."],
+    ],
+    f_title: "¿Listo para llevar tu memoria contigo?",
+    f_text: "El asistente es gratis. Si te ayuda, puedes invitarme a un café al final.",
+    f_btn: "Abrir el asistente de migración",
+    f_note: "Gratis / Sin cuenta necesaria / ~30 minutos",
+    footer: "Creado por alguien que hizo esta migración de verdad. No afiliado con Anthropic ni OpenAI.",
+    step_lbl: "Paso", copy: "Copiar prompt", copied: "\u2713 Copiado!", prompt_lbl: "Prompt para Claude",
+    before: "Antes de continuar", back: "Atrás", next: "Siguiente paso",
+    bar_text: "Esta herramienta es gratuita y siempre lo será.", bar_btn: "\u2615 Invítame a un café",
+    mid_pre: "¿Te está siendo útil? Es gratis. Si te ahorra tiempo, puedes",
+    mid_link: "invitarme a un café", mid_post: "cuando quieras.",
+    fin_title: "¡Lo conseguiste!", fin_btn: "Invítame a un café",
+    fin_text: "Tu historial de ChatGPT está organizado en Proyectos de Claude. Si esta herramienta te ahorró tiempo, considera apoyar el proyecto.",
+    fin_note: "Totalmente opcional. Me alegra que haya ayudado.",
+    faq_ttl: "Preguntas frecuentes",
+    fc_q: "¿Cuántos archivos JSON tienes?",
+    fc_o1: "Solo 1 archivo", fc_o2: "2 a 20 archivos", fc_o3: "Más de 20",
+    fs_q: "¿Cuánto pesa el archivo?",
+    fs_o1: "Menos de 30 MB", fs_o2: "30 MB o más",
+  }
+};
+
+// ============================================================
+// FAQ (bilingual)
+// ============================================================
+const FAQS = {
+  en: [
+    { q: "How many JSON files can I upload at once?", a: "Claude handles max 20 files per chat. If you have more, upload in batches of 20, merge the outputs, then continue with the merged file." },
+    { q: "I'm getting 'Knowledge exceeds maximum' error", a: "Your file is too big for the knowledge base (30 MB limit). Go back to the classify + generate steps — splitting by topic usually brings each file down to 3–8 MB." },
+    { q: "Claude isn't finding some of my conversations", a: "The knowledge base uses RAG (retrieval). Be specific: include keywords, dates, or exact phrases from the conversation you're looking for." },
+    { q: "My file is still too big after cleaning", a: "The topic split in steps 5A/5B is designed to fix this. A single 80 MB file typically becomes 4–6 files of 5–15 MB each." },
+    { q: "Where do I upload the file — chat or knowledge base?", a: "During processing (steps 3–5): upload into the chat. Final topic files go into the Project knowledge base so Claude can reference them permanently." },
+    { q: "Do I need to repeat the migration if I export again?", a: "Only if you want to add newer conversations. Run the same process on the new export and merge it with your existing memory files." },
+    { q: "Is my data sent anywhere?", a: "No. This tool is a static webpage — no server, no storage. You upload files directly to Claude in your own browser session." },
+  ],
+  es: [
+    { q: "¿Cuántos archivos JSON puedo subir a la vez?", a: "Claude maneja máximo 20 archivos por chat. Si tienes más, súbelos en grupos de 20, fusiona los resultados y continúa." },
+    { q: "Me sale el error 'Knowledge exceeds maximum'", a: "Tu archivo es demasiado grande para la base de conocimiento (límite 30 MB). Vuelve a los pasos de clasificación — dividir por tema suele reducir cada archivo a 3-8 MB." },
+    { q: "Claude no encuentra algunas de mis conversaciones", a: "La base de conocimiento usa RAG (recuperación). Sé específico: incluye palabras clave, fechas o frases exactas de la conversación que buscas." },
+    { q: "Mi archivo sigue siendo demasiado grande tras limpiar", a: "La división por temas en los pasos 5A/5B está diseñada para solucionar esto. Un archivo de 80 MB suele convertirse en 4-6 archivos de 5-15 MB cada uno." },
+    { q: "¿Dónde subo el archivo — al chat o a la base de conocimiento?", a: "Durante el procesamiento (pasos 3-5): súbelo al chat. Los archivos finales por tema van a la base de conocimiento del Proyecto para que Claude los consulte permanentemente." },
+    { q: "¿Tengo que repetir la migración si exporto de nuevo?", a: "Solo si quieres añadir conversaciones más recientes. Sigue el mismo proceso con la nueva exportación y fusiona con tus archivos de memoria existentes." },
+    { q: "¿Se envían mis datos a algún servidor?", a: "No. Esta herramienta es una página estática — sin servidor, sin almacenamiento. Subes los archivos directamente a Claude en tu propia sesión del navegador." },
+  ]
+};
 
 // ============================================================
 // STEP BUILDER
 // ============================================================
-function getSteps(a) {
+function getSteps(a, T) {
+  const es = T === TRANS.es;
   const s = [];
-  s.push({ id:"export", num:"1", title:"Export from ChatGPT", sub:"Get your data out", time:"2 min",
-    insts:["Open chatgpt.com and log in","Click your profile icon (bottom-left)","Go to Settings \u2192 Data controls \u2192 Export data","Confirm, wait for the email (10-30 min)","Download the ZIP and unzip it","Find the conversations.json file(s)"],
-    tip:"Check how many JSON files you got and roughly how big they are.", prompt:null, check:"I have my JSON file(s) ready",
-    q:{ text:"How many JSON files did you get?", opts:[{l:"Just 1 file",v:"one"},{l:"2 to 20 files",v:"few"},{l:"More than 20",v:"many"}], k:"fc" }});
 
-  if(a.fc==="one") s.push({ id:"size", num:"2", title:"Check file size", sub:"Right-click to see the size", time:"30 sec",
-    insts:["Find your conversations.json","Right-click \u2192 Properties (Win) or Get Info (Mac)","Note the file size"],
-    tip:null, prompt:null, check:"I know my file size",
-    q:{ text:"How big is your file?", opts:[{l:"Under 30 MB",v:"small"},{l:"30 MB or bigger",v:"big"}], k:"fs" }});
+  s.push({ id:"export", num:"1",
+    title: es ? "Exportar de ChatGPT" : "Export from ChatGPT",
+    sub: es ? "Saca tus datos" : "Get your data out",
+    time: es ? "2 min" : "2 min",
+    insts: es
+      ? ["Abre chatgpt.com e inicia sesión","Haz click en tu icono de perfil (abajo a la izquierda)","Ve a Configuración \u2192 Control de datos \u2192 Exportar datos","Confirma, espera el email (10-30 min)","Descarga el ZIP y descomprímelo","Encuentra el/los archivos conversations.json"]
+      : ["Open chatgpt.com and log in","Click your profile icon (bottom-left)","Go to Settings \u2192 Data controls \u2192 Export data","Confirm, wait for the email (10-30 min)","Download the ZIP and unzip it","Find the conversations.json file(s)"],
+    tip: es ? "Comprueba cuántos archivos JSON tienes y su tamaño aproximado." : "Check how many JSON files you got and roughly how big they are.",
+    prompt: null,
+    check: es ? "Tengo mis archivos JSON listos" : "I have my JSON file(s) ready",
+    q:{ text: T.fc_q, opts:[{l:T.fc_o1,v:"one"},{l:T.fc_o2,v:"few"},{l:T.fc_o3,v:"many"}], k:"fc" }
+  });
 
-  if(a.fc==="few"||a.fc==="many") s.push({ id:"concat", num:"2A", title:"Merge files", sub:"Concatenate into one", time:"5 min",
+  if(a.fc==="one") s.push({ id:"size", num:"2",
+    title: es ? "Comprobar tamaño" : "Check file size",
+    sub: es ? "Click derecho para ver el tamaño" : "Right-click to see the size",
+    time: es ? "30 seg" : "30 sec",
+    insts: es
+      ? ["Encuentra tu conversations.json","Click derecho \u2192 Obtener información (Mac) o Propiedades (Win)","Apunta el tamaño del archivo"]
+      : ["Find your conversations.json","Right-click \u2192 Properties (Win) or Get Info (Mac)","Note the file size"],
+    tip: null, prompt: null,
+    check: es ? "Sé el tamaño de mi archivo" : "I know my file size",
+    q:{ text: T.fs_q, opts:[{l:T.fs_o1,v:"small"},{l:T.fs_o2,v:"big"}], k:"fs" }
+  });
+
+  if(a.fc==="few"||a.fc==="many") s.push({ id:"concat", num:"2A",
+    title: es ? "Fusionar archivos" : "Merge files",
+    sub: es ? "Concatenar en uno solo" : "Concatenate into one",
+    time: "5 min",
     insts: a.fc==="many"
-      ? ["Open a regular Claude chat (not a Project)","Upload the first 20 JSON files","Paste the prompt below, wait for result","Download conversations_all.json","Open a NEW Claude chat","Upload remaining files + the conversations_all.json","Run the same prompt again","Download the final merged file"]
-      : ["Open a regular Claude chat (not a Project)","Upload all your JSON files","Paste the prompt below","Download conversations_all.json"],
-    tip: a.fc==="many" ? "You have 21+ files. Claude handles max 20 per chat, so you'll do two rounds." : "Claude will merge everything and remove duplicates.",
-    prompt:P.concat, check:"I downloaded conversations_all.json" });
+      ? (es
+          ? ["Abre un chat normal de Claude (no un Proyecto)","Sube los primeros 20 archivos JSON","Pega el prompt de abajo, espera el resultado","Descarga conversations_all.json","Abre un NUEVO chat de Claude","Sube los archivos restantes + conversations_all.json","Ejecuta el mismo prompt de nuevo","Descarga el archivo final fusionado"]
+          : ["Open a regular Claude chat (not a Project)","Upload the first 20 JSON files","Paste the prompt below, wait for result","Download conversations_all.json","Open a NEW Claude chat","Upload remaining files + the conversations_all.json","Run the same prompt again","Download the final merged file"])
+      : (es
+          ? ["Abre un chat normal de Claude (no un Proyecto)","Sube todos tus archivos JSON","Pega el prompt de abajo","Descarga conversations_all.json"]
+          : ["Open a regular Claude chat (not a Project)","Upload all your JSON files","Paste the prompt below","Download conversations_all.json"]),
+    tip: a.fc==="many"
+      ? (es ? "Tienes más de 21 archivos. Claude maneja máximo 20 por chat, así que lo harás en dos rondas." : "You have 21+ files. Claude handles max 20 per chat, so you'll do two rounds.")
+      : (es ? "Claude fusionará todo y eliminará duplicados." : "Claude will merge everything and remove duplicates."),
+    prompt: P.concat,
+    check: es ? "He descargado conversations_all.json" : "I downloaded conversations_all.json"
+  });
 
-  if(!(a.fc==="one"&&a.fs==="small")) s.push({ id:"clean", num:a.fc==="one"?"2":"2B", title:"Clean", sub:"Strip the bloat", time:"5 min",
-    insts:["Open a NEW Claude chat",`Upload your ${a.fc==="one"?"conversations.json":"conversations_all.json"}`,"Paste the prompt below","Download conversations_clean.json"],
-    tip:"Cleaning removes system messages, tool calls, DALL-E metadata, plugin outputs. Typically reduces size by 40-70%.",
-    prompt:P.clean, check:"I downloaded conversations_clean.json" });
+  if(!(a.fc==="one"&&a.fs==="small")) s.push({ id:"clean", num: a.fc==="one"?"2":"2B",
+    title: es ? "Limpiar" : "Clean",
+    sub: es ? "Eliminar el exceso" : "Strip the bloat",
+    time: "5 min",
+    insts: es
+      ? ["Abre un NUEVO chat de Claude",`Sube tu ${a.fc==="one"?"conversations.json":"conversations_all.json"}`,"Pega el prompt de abajo","Descarga conversations_clean.json"]
+      : ["Open a NEW Claude chat",`Upload your ${a.fc==="one"?"conversations.json":"conversations_all.json"}`,"Paste the prompt below","Download conversations_clean.json"],
+    tip: es
+      ? "La limpieza elimina mensajes del sistema, tool calls, metadatos de DALL-E. Suele reducir el tamaño un 40-70%."
+      : "Cleaning removes system messages, tool calls, DALL-E metadata, plugin outputs. Typically reduces size by 40-70%.",
+    prompt: P.clean,
+    check: es ? "He descargado conversations_clean.json" : "I downloaded conversations_clean.json"
+  });
 
   const fn = (a.fc==="one"&&a.fs==="small") ? "conversations.json" : "conversations_clean.json";
-  s.push({ id:"project", num:"3", title:"Create Processing Project", sub:"Your temporary workspace", time:"1 min",
-    insts:["Go to claude.ai","Sidebar \u2192 Projects \u2192 Create Project",'Name it "ChatGPT Migration - Processing"',"Open a conversation inside it",`Upload ${fn} into the chat (drag & drop)`],
-    tip:"Upload into the chat, not the knowledge base. The final topic files go into the knowledge base later.", prompt:null, check:"Project created, file uploaded" });
+  s.push({ id:"project", num:"3",
+    title: es ? "Crear Proyecto de procesamiento" : "Create Processing Project",
+    sub: es ? "Tu espacio de trabajo temporal" : "Your temporary workspace",
+    time: "1 min",
+    insts: es
+      ? ["Ve a claude.ai","Barra lateral \u2192 Proyectos \u2192 Crear Proyecto","Llámalo 'Migración ChatGPT - Procesamiento'","Abre una conversación dentro",`Sube ${fn} al chat (arrastra y suelta)`]
+      : ["Go to claude.ai","Sidebar \u2192 Projects \u2192 Create Project",'Name it "ChatGPT Migration - Processing"',"Open a conversation inside it",`Upload ${fn} into the chat (drag & drop)`],
+    tip: es
+      ? "Sube al chat, no a la base de conocimiento. Los archivos finales por tema van a la base de conocimiento más adelante."
+      : "Upload into the chat, not the knowledge base. The final topic files go into the knowledge base later.",
+    prompt: null,
+    check: es ? "Proyecto creado, archivo subido" : "Project created, file uploaded"
+  });
 
-  s.push({ id:"explore", num:"4A", title:"Explore topics", sub:"What did you talk about?", time:"5 min",
-    insts:["Paste the prompt below in your Project chat","Wait for Claude to analyze everything","Review the suggested categories","Adjust: rename, merge, or split as needed"],
-    tip:"Aim for 4-6 categories that don't overlap. Always include 'Other'.", prompt:P.explore, check:"I reviewed the suggested categories" });
+  s.push({ id:"explore", num:"4A",
+    title: es ? "Explorar temas" : "Explore topics",
+    sub: es ? "¿De qué hablabas?" : "What did you talk about?",
+    time: "5 min",
+    insts: es
+      ? ["Pega el prompt de abajo en tu chat del Proyecto","Espera a que Claude analice todo","Revisa las categorías sugeridas","Ajusta: renombra, fusiona o divide según necesites"]
+      : ["Paste the prompt below in your Project chat","Wait for Claude to analyze everything","Review the suggested categories","Adjust: rename, merge, or split as needed"],
+    tip: es ? "Apunta a 4-6 categorías que no se solapen. Incluye siempre 'Otros'." : "Aim for 4-6 categories that don't overlap. Always include 'Other'.",
+    prompt: P.explore,
+    check: es ? "He revisado las categorías sugeridas" : "I reviewed the suggested categories"
+  });
 
-  s.push({ id:"lock", num:"4B", title:"Lock in categories", sub:"Set the classification rules", time:"3 min",
-    insts:["Edit the prompt: replace [CATEGORY NAME] with your categories","Paste in the same conversation","Review the decision guide","Correct any rules that feel wrong"],
-    tip:"This ensures consistent sorting. Clarify any boundaries between similar categories now.", prompt:P.lock, check:"Decision guide looks good" });
+  s.push({ id:"lock", num:"4B",
+    title: es ? "Fijar categorías" : "Lock in categories",
+    sub: es ? "Establecer las reglas de clasificación" : "Set the classification rules",
+    time: "3 min",
+    insts: es
+      ? ["Edita el prompt: reemplaza [NOMBRE DE CATEGORÍA] con tus categorías","Pégalo en la misma conversación","Revisa la guía de decisión","Corrige cualquier regla que no te convenza"]
+      : ["Edit the prompt: replace [CATEGORY NAME] with your categories","Paste in the same conversation","Review the decision guide","Correct any rules that feel wrong"],
+    tip: es
+      ? "Esto garantiza una clasificación consistente. Aclara los límites entre categorías similares ahora."
+      : "This ensures consistent sorting. Clarify any boundaries between similar categories now.",
+    prompt: P.lock,
+    check: es ? "La guía de decisión está bien" : "Decision guide looks good"
+  });
 
-  s.push({ id:"classify", num:"5A", title:"Classify", sub:"Sort every conversation", time:"10 min",
-    insts:["Paste the prompt (same conversation)","Review spot checks per category","Check borderline cases","Tell Claude to move misclassified items"],
-    tip:"This is your quality gate. Wrong category now = wrong Project forever.", prompt:P.classify, check:"Classification approved" });
+  s.push({ id:"classify", num:"5A",
+    title: es ? "Clasificar" : "Classify",
+    sub: es ? "Ordena cada conversación" : "Sort every conversation",
+    time: "10 min",
+    insts: es
+      ? ["Pega el prompt (misma conversación)","Revisa los ejemplos por categoría","Comprueba los casos límite","Dile a Claude que mueva los mal clasificados"]
+      : ["Paste the prompt (same conversation)","Review spot checks per category","Check borderline cases","Tell Claude to move misclassified items"],
+    tip: es
+      ? "Este es tu control de calidad. Una categoría errónea ahora = un Proyecto erróneo para siempre."
+      : "This is your quality gate. Wrong category now = wrong Project forever.",
+    prompt: P.classify,
+    check: es ? "Clasificación aprobada" : "Classification approved"
+  });
 
-  s.push({ id:"generate", num:"5B", title:"Generate files", sub:"Create your memory files", time:"5 min",
-    insts:["Paste the prompt (same conversation)","Wait for all files to generate","Download EVERY file","Check each is under 10 MB"],
-    tip:"Each file becomes its own Claude Project.", prompt:P.generate, check:"All topic files downloaded" });
+  s.push({ id:"generate", num:"5B",
+    title: es ? "Generar archivos" : "Generate files",
+    sub: es ? "Crea tus archivos de memoria" : "Create your memory files",
+    time: "5 min",
+    insts: es
+      ? ["Pega el prompt (misma conversación)","Espera a que se generen todos los archivos","Descarga CADA archivo","Comprueba que cada uno pese menos de 10 MB"]
+      : ["Paste the prompt (same conversation)","Wait for all files to generate","Download EVERY file","Check each is under 10 MB"],
+    tip: es ? "Cada archivo se convierte en su propio Proyecto de Claude." : "Each file becomes its own Claude Project.",
+    prompt: P.generate,
+    check: es ? "Todos los archivos por tema descargados" : "All topic files downloaded"
+  });
 
-  s.push({ id:"setup", num:"6", title:"Set up Projects", sub:"Create permanent memory", time:"10 min",
-    insts:["For each file: create a new Claude Project",'Name it (e.g. "Memory: Work", "Memory: Coding")',"Upload the file to the Project knowledge base","Paste the prompt below into Custom Instructions (edit brackets)"],
-    tip:"One Project per topic. Smaller Projects give better retrieval.", prompt:P.setup, check:"All Projects created" });
+  s.push({ id:"setup", num:"6",
+    title: es ? "Configurar Proyectos" : "Set up Projects",
+    sub: es ? "Crear memoria permanente" : "Create permanent memory",
+    time: "10 min",
+    insts: es
+      ? ["Para cada archivo: crea un nuevo Proyecto de Claude","Ponle nombre (ej. 'Memoria: Trabajo', 'Memoria: Código')","Sube el archivo a la base de conocimiento del Proyecto","Pega el prompt de abajo en las Instrucciones personalizadas (edita los corchetes)"]
+      : ["For each file: create a new Claude Project",'Name it (e.g. "Memory: Work", "Memory: Coding")',"Upload the file to the Project knowledge base","Paste the prompt below into Custom Instructions (edit brackets)"],
+    tip: es
+      ? "Un Proyecto por tema. Los Proyectos más pequeños dan mejor recuperación."
+      : "One Project per topic. Smaller Projects give better retrieval.",
+    prompt: P.setup,
+    check: es ? "Todos los Proyectos creados" : "All Projects created"
+  });
 
-  s.push({ id:"verify", num:"7", title:"Verify & celebrate", sub:"Test your new memory", time:"2 min",
-    insts:["Open each new Project","Paste the verification prompt","Check Claude can find your conversations","Delete the temporary Processing Project","You're done!"],
-    tip:"Try asking about something you discussed months ago.", prompt:P.verify, check:"Claude remembers my conversations!" });
+  s.push({ id:"verify", num:"7",
+    title: es ? "Verificar y celebrar" : "Verify & celebrate",
+    sub: es ? "Prueba tu nueva memoria" : "Test your new memory",
+    time: "2 min",
+    insts: es
+      ? ["Abre cada nuevo Proyecto","Pega el prompt de verificación","Comprueba que Claude puede encontrar tus conversaciones","Elimina el Proyecto temporal de procesamiento","¡Ya está!"]
+      : ["Open each new Project","Paste the verification prompt","Check Claude can find your conversations","Delete the temporary Processing Project","You're done!"],
+    tip: es ? "Prueba preguntando sobre algo que discutiste hace meses." : "Try asking about something you discussed months ago.",
+    prompt: P.verify,
+    check: es ? "¡Claude recuerda mis conversaciones!" : "Claude remembers my conversations!"
+  });
 
   return s;
 }
@@ -217,25 +432,26 @@ function getSteps(a) {
 // ============================================================
 // SMALL COMPONENTS
 // ============================================================
-function CopyBtn({text}){
+function CopyBtn({text, T}){
   const[ok,setOk]=useState(false);
   return <button onClick={()=>{navigator.clipboard.writeText(text);setOk(true);setTimeout(()=>setOk(false),2000);}}
-    className={`cp-btn ${ok?"cp-ok":""}`}>{ok?"\u2713 Copied!":"Copy prompt"}</button>;
+    className={`cp-btn ${ok?"cp-ok":""}`}>{ok ? T.copied : T.copy}</button>;
 }
 
-function Branch({q,onA,cur}){
-  return <div className="branch"><div className="branch-label">Before you continue</div>
+function Branch({q, onA, cur, T}){
+  return <div className="branch"><div className="branch-label">{T.before}</div>
     <div className="branch-q">{q.text}</div>
     <div className="branch-opts">{q.opts.map(o=><button key={o.v} className={`branch-o ${cur===o.v?"branch-sel":""}`} onClick={()=>onA(q.k,o.v)}>{o.l}</button>)}</div></div>;
 }
 
-function FAQ({open,onClose}){
+function FAQ({open, onClose, T, lang}){
   const[exp,setExp]=useState(null);
   if(!open)return null;
-  return <div className="hlp"><div className="hlp-hdr"><span className="hlp-title">FAQ</span>
+  const faqs = FAQS[lang] || FAQS.en;
+  return <div className="hlp"><div className="hlp-hdr"><span className="hlp-title">{T.faq_ttl}</span>
     <button onClick={onClose} className="hlp-x">{"\u2715"}</button></div>
     <div className="hlp-msgs" style={{padding:"12px 0"}}>
-      {FAQS.map((f,i)=><div key={i} className="faq-item" onClick={()=>setExp(exp===i?null:i)}>
+      {faqs.map((f,i)=><div key={i} className="faq-item" onClick={()=>setExp(exp===i?null:i)}>
         <div className="faq-q"><span>{f.q}</span><span className="faq-arrow">{exp===i?"\u25b2":"\u25bc"}</span></div>
         {exp===i&&<div className="faq-a">{f.a}</div>}
       </div>)}
@@ -253,62 +469,66 @@ function Counter({target,suffix="",dur=2000}){
 // ============================================================
 // LANDING PAGE
 // ============================================================
-function Landing({onStart}){
+function Landing({onStart, lang, setLang}){
+  const T = TRANS[lang];
   return <div className="land">
-    <nav className="nav"><div className="nav-logo">#QuitGPT <span>memory kit</span></div>
-      <button className="nav-btn" onClick={onStart}>Start migrating</button></nav>
+    <nav className="nav">
+      <div className="nav-logo">#QuitGPT <span>memory kit</span></div>
+      <div style={{display:"flex",gap:12,alignItems:"center"}}>
+        <button className="lang-toggle" onClick={()=>setLang(lang==="en"?"es":"en")}>{lang==="en"?"ES":"EN"}</button>
+        <button className="nav-btn" onClick={onStart}>{T.nav_cta}</button>
+      </div>
+    </nav>
 
     <section className="hero">
-      <div className="badge"><span className="dot"/> #QuitGPT is trending</div>
-      <h1>Leave <span className="x">ChatGPT</span>.<br/>Keep <em>every memory</em>.</h1>
-      <p className="hero-sub">Move your entire ChatGPT history into organized Claude Projects. No code. No scripts. Just copy-paste prompts that do the work for you.</p>
-      <div className="hero-cta"><button className="btn-big" onClick={onStart}>Start migrating — it's free</button>
-        <p className="sub-note">Free tool / ~30 min / zero code required</p></div>
+      <div className="badge"><span className="dot"/> {T.badge}</div>
+      <h1>{T.hero_h1a} <span className="x">ChatGPT</span>.<br/>{T.hero_h1b} <em>{T.hero_h1c}</em></h1>
+      <p className="hero-sub">{T.hero_sub}</p>
+      <div className="hero-cta"><button className="btn-big" onClick={onStart}>{T.hero_cta}</button>
+        <p className="sub-note">{T.sub_note}</p></div>
     </section>
 
-    <div className="ksp"><div className="ksp-inner">No terminal. No Python. No scripts.<br/>Just <span className="hl">copy-paste prompts</span> and Claude does the rest.</div></div>
+    <div className="ksp"><div className="ksp-inner">{T.ksp_a}<br/>Just <span className="hl">{T.ksp_b}</span> {T.ksp_c}</div></div>
 
     <div className="stats">
-      <div className="stat"><div className="stat-n"><Counter target={295} suffix="%"/></div><div className="stat-l">ChatGPT uninstall spike</div></div>
-      <div className="stat"><div className="stat-n"><Counter target={700} suffix="k"/></div><div className="stat-l">users switched to Claude</div></div>
-      <div className="stat"><div className="stat-n">#1</div><div className="stat-l">Claude on App Store</div></div>
+      <div className="stat"><div className="stat-n"><Counter target={295} suffix="%"/></div><div className="stat-l">{T.s1}</div></div>
+      <div className="stat"><div className="stat-n"><Counter target={700} suffix="k"/></div><div className="stat-l">{T.s2}</div></div>
+      <div className="stat"><div className="stat-n">#1</div><div className="stat-l">{T.s3}</div></div>
     </div>
 
     <section className="sec">
-      <div className="sec-label">The problem</div>
-      <h2 className="sec-title">Claude's memory import gets you 20%.<br/>This gets you the other 80%.</h2>
-      <p className="sec-text">The built-in "Import Memory" copies your name and preferences. But your real knowledge — every project discussion, brainstorm, and solution — lives in your conversation history. That doesn't transfer.</p>
+      <div className="sec-label">{T.p_label}</div>
+      <h2 className="sec-title">{T.p_title.split("\n").map((l,i)=><span key={i}>{l}{i===0&&<br/>}</span>)}</h2>
+      <p className="sec-text">{T.p_text}</p>
       <div className="cmp">
-        <div className="cmp-col bad"><div className="cmp-label">Built-in import</div>
-          <ul className="cmp-list"><li>Surface preferences only</li><li>No conversation history</li><li>No project context</li><li>Claude starts from near-zero</li></ul></div>
-        <div className="cmp-col good"><div className="cmp-label">With this kit</div>
-          <ul className="cmp-list"><li>Full history, cleaned and organized</li><li>Topic-based Claude Projects</li><li>Deep context preserved</li><li>Switching feels like an upgrade</li></ul></div>
+        <div className="cmp-col bad"><div className="cmp-label">{T.bad_lbl}</div>
+          <ul className="cmp-list">{T.bad_li.map((l,i)=><li key={i}>{l}</li>)}</ul></div>
+        <div className="cmp-col good"><div className="cmp-label">{T.good_lbl}</div>
+          <ul className="cmp-list">{T.good_li.map((l,i)=><li key={i}>{l}</li>)}</ul></div>
       </div>
     </section>
 
     <section className="sec">
-      <div className="sec-label">How it works</div>
-      <h2 className="sec-title">A wizard guides you step by step.<br/>You just copy, paste, and follow along.</h2>
-      <p className="sec-text">The wizard adapts to your situation — whether you have 1 file or 25. It shows only the steps YOU need, with copy-paste prompts and a built-in AI helper for when you get stuck.</p>
+      <div className="sec-label">{T.h_label}</div>
+      <h2 className="sec-title">{T.h_title.split("\n").map((l,i)=><span key={i}>{l}{i===0&&<br/>}</span>)}</h2>
+      <p className="sec-text">{T.h_text}</p>
       <div className="steps">
-        {[["1","Export from ChatGPT","Settings \u2192 Data \u2192 Export. Takes 2 min."],
-          ["2","Clean & organize","The wizard's prompts tell Claude to strip metadata and merge files."],
-          ["3","Classify by topic","Claude analyzes your history and suggests personalized categories."],
-          ["4","Generate & upload","Claude creates topic files. You upload them to permanent Projects."],
-          ["\u2713","Done","Ask Claude about any past project. It finds the context."]
-        ].map(([n,t,d],i)=><div key={i} className="step"><div className="step-n" style={n==="\u2713"?{color:"var(--gn)"}:{}}>{n}</div><div><div className="step-t">{t}</div><div className="step-d">{d}</div></div></div>)}
+        {T.h_steps.map(([n,t,d],i)=><div key={i} className="step">
+          <div className="step-n" style={i===4?{color:"var(--gn)"}:{}}>{i===4?"\u2713":(i+1)}</div>
+          <div><div className="step-t">{t}</div><div className="step-d">{d}</div></div>
+        </div>)}
       </div>
     </section>
 
     <section className="sec" style={{textAlign:"center"}}>
-      <h2 className="sec-title">Ready to bring your brain with you?</h2>
-      <p className="sec-text" style={{margin:"0 auto 32px",textAlign:"center"}}>The wizard is free. If it helps you, you can buy me a coffee at the end.</p>
-      <button className="btn-big" onClick={onStart}>Open the migration wizard</button>
-      <p className="sub-note" style={{marginTop:12}}>Free / No account needed / ~30 minutes</p>
+      <h2 className="sec-title">{T.f_title}</h2>
+      <p className="sec-text" style={{margin:"0 auto 32px",textAlign:"center"}}>{T.f_text}</p>
+      <button className="btn-big" onClick={onStart}>{T.f_btn}</button>
+      <p className="sub-note" style={{marginTop:12}}>{T.f_note}</p>
     </section>
 
     <footer className="footer">
-      <p>Built by someone who actually did this migration. Not affiliated with Anthropic or OpenAI.</p>
+      <p>{T.footer}</p>
       <p style={{marginTop:8}}>Made by <a href="https://twitter.com/mayarivers_ai" target="_blank" rel="noopener">@mayarivers_ai</a></p>
     </footer>
   </div>;
@@ -317,9 +537,10 @@ function Landing({onStart}){
 // ============================================================
 // WIZARD
 // ============================================================
-function Wizard({onHome}){
+function Wizard({onHome, lang, setLang}){
+  const T = TRANS[lang];
   const[cur,setCur]=useState(0);const[chk,setChk]=useState({});const[ans,setAns]=useState({});const[hlp,setHlp]=useState(false);
-  const steps=getSteps(ans);const step=steps[cur]||steps[0];const prog=Object.keys(chk).filter(k=>chk[k]).length;
+  const steps=getSteps(ans, T);const step=steps[cur]||steps[0];const prog=Object.keys(chk).filter(k=>chk[k]).length;
   const isLast=cur===steps.length-1;
   const isMid=step.id==="project";
   useEffect(()=>{if(cur>=steps.length)setCur(steps.length-1);},[steps.length,cur]);
@@ -330,7 +551,10 @@ function Wizard({onHome}){
     <div className="wz-hdr">
       <div className="nav-logo" style={{cursor:"pointer"}} onClick={onHome}>{"\u2190"} #QuitGPT <span>kit</span></div>
       <div className="wz-bar"><div className="wz-fill" style={{width:`${(prog/steps.length)*100}%`}}/></div>
-      <div className="wz-pct">{prog}/{steps.length}</div>
+      <div style={{display:"flex",gap:10,alignItems:"center"}}>
+        <div className="wz-pct">{prog}/{steps.length}</div>
+        <button className="lang-toggle" onClick={()=>setLang(lang==="en"?"es":"en")}>{lang==="en"?"ES":"EN"}</button>
+      </div>
     </div>
 
     <div className="wz-mob">{steps.map((s,i)=><div key={s.id} className={`wz-pill ${i===cur?"act":""} ${chk[s.id]?"dn":""}`} onClick={()=>setCur(i)}>{s.num}</div>)}</div>
@@ -340,7 +564,7 @@ function Wizard({onHome}){
         <div className="wz-nn">{chk[s.id]?"\u2713":s.num}</div><div className="wz-nt">{s.title}</div></div>)}</div>
 
       <div className="wz-main">
-        <div className="wz-snum">Step {step.num}</div>
+        <div className="wz-snum">{T.step_lbl} {step.num}</div>
         <h1 className="wz-stit">{step.title}</h1>
         <p className="wz-ssub">{step.sub}</p>
         <span className="wz-time">{step.time}</span>
@@ -349,54 +573,40 @@ function Wizard({onHome}){
 
         {step.tip&&<div className="wz-tip"><div className="wz-tip-l">Tip</div>{step.tip}</div>}
 
-        {step.prompt&&<div className="wz-psec"><div className="wz-phdr"><span className="wz-plbl">Prompt for Claude</span><CopyBtn text={step.prompt}/></div><div className="wz-pbox">{step.prompt}</div></div>}
+        {step.prompt&&<div className="wz-psec"><div className="wz-phdr"><span className="wz-plbl">{T.prompt_lbl}</span><CopyBtn text={step.prompt} T={T}/></div><div className="wz-pbox">{step.prompt}</div></div>}
 
-        {step.q&&<Branch q={step.q} onA={(k,v)=>setAns(p=>({...p,[k]:v}))} cur={ans[step.q.k]}/>}
+        {step.q&&<Branch q={step.q} onA={(k,v)=>setAns(p=>({...p,[k]:v}))} cur={ans[step.q.k]} T={T}/>}
 
         <div className={`wz-chk ${chk[step.id]?"on":""}`} onClick={()=>setChk(p=>({...p,[step.id]:!p[step.id]}))}>
           <div className="wz-cb">{chk[step.id]?"\u2713":""}</div><span className="wz-ct">{step.check}</span></div>
 
-        {/* MID-PROCESS donation mention (after creating Project) */}
         {isMid&&<div className="don-mid">
           <span className="don-mid-ico">&#9749;</span>
-          <span className="don-mid-text">Enjoying the kit so far? This tool is free. If it's saving you time, you can <button className="don-mid-link" onClick={donate}>buy me a coffee</button> anytime.</span>
+          <span className="don-mid-text">{T.mid_pre} <button className="don-mid-link" onClick={donate}>{T.mid_link}</button> {T.mid_post}</span>
         </div>}
 
-        {/* FINAL donation section (always visible on last step) */}
         {isLast&&<div className="donation">
           <div className="donation-emoji">&#127881;</div>
-          <div className="donation-title">You made it!</div>
-          <p className="donation-text">Your ChatGPT history is now organized in Claude Projects. If this tool saved you time and headaches, consider supporting the project. It helps me keep building free tools.</p>
-          <button className="donation-btn" onClick={donate}>Buy me a coffee ({CONFIG.DONATION_AMOUNT})</button>
-          <p className="donation-note">Totally optional. Glad it helped either way.</p>
+          <div className="donation-title">{T.fin_title}</div>
+          <p className="donation-text">{T.fin_text}</p>
+          <button className="donation-btn" onClick={donate}>{T.fin_btn} ({CONFIG.DONATION_AMOUNT})</button>
+          <p className="donation-note">{T.fin_note}</p>
         </div>}
 
         <div className="wz-btns">
-          {cur>0&&<button className="wz-b wz-bb" onClick={()=>setCur(cur-1)}>Back</button>}
-          {cur<steps.length-1&&<button className="wz-b wz-bn" onClick={()=>setCur(cur+1)}>Next step</button>}
+          {cur>0&&<button className="wz-b wz-bb" onClick={()=>setCur(cur-1)}>{T.back}</button>}
+          {cur<steps.length-1&&<button className="wz-b wz-bn" onClick={()=>setCur(cur+1)}>{T.next}</button>}
         </div>
       </div>
     </div>
 
-    {/* FIXED BOTTOM BANNER (always visible) */}
     <div className="don-bar">
-      <span className="don-bar-text">This tool is free and always will be.</span>
-      <button className="don-bar-btn" onClick={donate}>&#9749; Buy me a coffee</button>
+      <span className="don-bar-text">{T.bar_text}</span>
+      <button className="don-bar-btn" onClick={donate}>{T.bar_btn}</button>
     </div>
 
     <button className="wz-fab" onClick={()=>setHlp(!hlp)} style={{bottom:60}}>{hlp?"\u2715":"?"}</button>
-    <FAQ open={hlp} onClose={()=>setHlp(false)}/>
-  </div>;
-}
-
-// ============================================================
-// APP (router)
-// ============================================================
-export default function App(){
-  const[page,setPage]=useState("landing");
-  return <div className="app"><style>{STYLES}</style>
-    {page==="landing"?<Landing onStart={()=>{setPage("wizard");window.scrollTo(0,0);}}/>:
-     <Wizard onHome={()=>{setPage("landing");window.scrollTo(0,0);}}/>}
+    <FAQ open={hlp} onClose={()=>setHlp(false)} T={T} lang={lang}/>
   </div>;
 }
 
@@ -415,6 +625,8 @@ const STYLES=`
 .nav-logo span{color:var(--tx2);font-weight:400;}
 .nav-btn{padding:8px 20px;background:var(--ac);color:var(--bg);border:none;border-radius:100px;font-family:var(--sn);font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
 .nav-btn:hover{background:var(--ac2);transform:translateY(-1px);box-shadow:0 4px 20px var(--acg);}
+.lang-toggle{padding:6px 12px;background:transparent;color:var(--tx2);border:1px solid rgba(255,255,255,0.1);border-radius:100px;font-family:var(--mn);font-size:11px;font-weight:500;cursor:pointer;letter-spacing:1px;transition:all .2s;}
+.lang-toggle:hover{color:var(--tx);border-color:rgba(255,255,255,0.2);}
 
 /* HERO */
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;}
@@ -578,3 +790,17 @@ const STYLES=`
 
 @media(max-width:640px){.stats{gap:20px;}.stat-n{font-size:30px;}.sec{padding:64px 20px;}.hero{padding:100px 20px 60px;}}
 `;
+
+// ============================================================
+// APP
+// ============================================================
+export default function App(){
+  const[view,setView]=useState("land");
+  const[lang,setLang]=useState("en");
+  useEffect(()=>{const s=document.createElement("style");s.textContent=STYLES;document.head.appendChild(s);return()=>s.remove();},[]);
+  return <div className="app">
+    {view==="land"
+      ? <Landing onStart={()=>setView("wiz")} lang={lang} setLang={setLang}/>
+      : <Wizard onHome={()=>setView("land")} lang={lang} setLang={setLang}/>}
+  </div>;
+}
